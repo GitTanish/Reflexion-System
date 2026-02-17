@@ -106,7 +106,7 @@ MAX_RETRIES=3
 | Planner agent | Not started |
 | Coder agent | Not started |
 | Executor (sandboxed runner) | Not started |
-| Evaluator agent | Not started |
+| Evaluator agent | Skeleton / Mocked |
 | Reflector agent | Not started |
 | Prompt templates | Not started |
 | Config / env loading | Not started |
