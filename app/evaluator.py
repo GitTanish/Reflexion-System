@@ -2,8 +2,17 @@ from dataclasses import dataclass
 from enum import Enum
 from pydantic import BaseModel, Field
 from state import ReflexionState
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
+llm = ChatGroq(
+    model = "llama-3.3-70b-versatile",
+    temperature = 0,
+    api_key = os.getenv("GROQ_API_KEY"),
+    
+)
 
 class FailureType(str, Enum):
     SYNTAX_ERROR = "syntax_error"
