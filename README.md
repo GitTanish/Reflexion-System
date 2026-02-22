@@ -1,14 +1,21 @@
-# Reflexion System
+# 🧠 Reflexion System: The Autonomous Coding Agent That *Learns* From Its Mistakes
 
-> **Status: Under Active Development** — This project is not yet production-ready. Core architecture is scaffolded; implementation is in progress.
+> **🚀 Status: Under Active Development** 
+> We're currently scaffolding the core architecture and bringing this beast to life. It's not production-ready yet, but the foundation is rock solid!
 
-An LLM-powered autonomous coding agent that uses **reflexion** — a self-reflective feedback loop — to iteratively plan, write, execute, evaluate, and improve code until a task is solved or a retry limit is reached.
+Ever wish your code could write itself, test itself, and—when it inevitably breaks—*fix* itself? Welcome to the **Reflexion System**.
 
-Inspired by the [Reflexion paper](https://arxiv.org/abs/2303.11366) (Shinn et al., 2023), the system treats failures as learning signals rather than terminal states, feeding execution errors and evaluator feedback back into the loop to produce progressively better solutions.
+Inspired by the groundbreaking [Reflexion paper](https://arxiv.org/abs/2303.11366) (Shinn et al., 2023), this is an LLM-powered autonomous coding agent built on a simple but powerful premise: **Failures aren't terminal. They're learning signals.** 
 
-## How It Works
+Instead of just spitting out code and hoping for the best, this system uses a self-reflective feedback loop to iteratively plan, write, execute, evaluate, and improve its solutions until the task is completely crushed.
 
-```
+---
+
+## ⚙️ How the Magic Happens
+
+Think of it as an AI development squad packed into a single loop:
+
+```text
 Task → Planner → Coder → Executor → Evaluator
                                         │
                               ┌─────────┤
@@ -20,105 +27,123 @@ Task → Planner → Coder → Executor → Evaluator
                                  Retry (Coder)
 ```
 
-1. **Planner** — Interprets the raw task and produces a step-by-step plan.
-2. **Coder** — Generates Python code from the plan (or a revised plan after reflection).
-3. **Executor** — Runs the generated code in a sandboxed environment and captures output/errors.
-4. **Evaluator** — Judges whether the output satisfies the original task.
-5. **Reflector** — On failure, analyzes what went wrong and produces a new strategy for the next attempt.
-6. **Control Loop** — Orchestrates the above agents, manages immutable state transitions, and enforces the retry limit.
+1. 🗺️ **Planner**: Breaks down your raw task into a crisp, actionable strategy.
+2. 💻 **Coder**: Turns that plan into pythonic reality.
+3. ⚡ **Executor**: Throws the code into a sandboxed arena to see if it survives.
+4. ⚖️ **Evaluator**: The strict judge. Did the code actually do what we wanted?
+5. 🔍 **Reflector**: The system's secret weapon. If the code failed, the Reflector analyzes *why* and formulates a brilliant new strategy for the next attempt.
+6. 🔁 **Control Loop**: The orchestrator keeping the chaos organized, managing state, and ensuring we don't loop forever.
 
-The loop continues until the evaluator marks the task as **passed** or the maximum retry count (`MAX_RETRIES`) is reached.
+This cycle repeats until the Evaluator is satisfied (Pass!) or we hit our retry limit (`MAX_RETRIES`).
 
-## Project Structure
+---
 
-```
+## 📂 Project Architecture
+
+A clean, modular structure designed for scale and understandability:
+
+```text
 Reflexion System/
-├── main.py                  # Entry point
-├── config.py                # Centralized configuration
-├── requirements.txt         # Python dependencies
-├── .env                     # Environment variables (not committed)
+├── main.py                  # The ignition switch
+├── config.py                # Centralized command center
+├── requirements.txt         # Fuel (Dependencies)
+├── .env                     # Secrets (Shh!)
 ├── app/
 │   ├── __init__.py
-│   ├── control_loop.py      # Core loop + immutable ReflexionState
-│   ├── planner.py           # Task interpretation & planning agent
-│   ├── coder.py             # Code generation agent
-│   ├── executor_tool.py     # Sandboxed code execution
-│   ├── evaluator.py         # Output evaluation agent
-│   ├── reflector.py         # Failure analysis & strategy revision agent
+│   ├── control_loop.py      # The heartbeat & immutable ReflexionState
+│   ├── planner.py           # Task interpretation
+│   ├── coder.py             # Code generation
+│   ├── executor_tool.py     # Sandboxed execution
+│   ├── evaluator.py         # Output evaluation
+│   ├── reflector.py         # Failure analysis
 │   ├── state.py             # Shared state definitions
-│   └── prompts/
+│   └── prompts/             # Where the LLMs get their marching orders
 │       ├── planner_prompt.txt
 │       ├── coder_prompt.txt
 │       ├── evaluator_prompt.txt
 │       └── reflector_prompt.txt
 └── tests/
-    └── test_tasks.py        # Task-level integration tests
+    └── test_tasks.py        # Proving it actually works
 ```
 
-## Setup
+---
+
+## 🚀 Get Started
+
+Ready to take it for a spin? Let's get you set up.
 
 ### Prerequisites
 
-- Python 3.10+
-- An API key for your chosen LLM provider (OpenAI or Google)
+- **Python 3.10+**
+- An API key for your LLM of choice (OpenAI or Google)
 
-### Installation
+### Quickstart
 
 ```bash
-# Clone the repository
+# 1. Grab the code
 git clone https://github.com/GitTanish/Reflexion-System.git
 cd Reflexion-System
 
-# Create and activate a virtual environment
+# 2. Forge a virtual environment
 python -m venv .venv
+
+# 3. Activate it
 .venv\Scripts\activate        # Windows
 # source .venv/bin/activate   # macOS / Linux
 
-# Install dependencies
+# 4. Install the goods
 pip install -r requirements.txt
 ```
 
 ### Configuration
 
-Copy `.env.example` or populate `.env` with your values:
+Copy `.env.example` to `.env` (or just create `.env`) and drop in your keys:
 
 ```env
-# LLM API Keys
+# 🔑 LLM API Keys
 OPENAI_API_KEY=sk-...
 GOOGLE_API_KEY=AIza...
 
-# Model Configuration
+# 🧠 Brain Settings
 MODEL_NAME=gpt-4
 TEMPERATURE=0.2
 MAX_TOKENS=4096
 
-# Execution
+# 🛑 Guardrails
 MAX_RETRIES=3
 ```
 
-## Current Progress
+---
+
+## 🏗️ What's Built So Far
+
+We're aggressively building this out. Here's where we stand:
 
 | Component | Status |
-|---|---|
-| File structure & scaffolding | Done |
-| `ReflexionState` (immutable dataclass) | Done |
-| Control loop skeleton | Done |
-| Planner agent | Not started |
-| Coder agent | Not started |
-| Executor (sandboxed runner) | Not started |
-| Evaluator agent | Skeleton / Mocked |
-| Reflector agent | Not started |
-| Prompt templates | Not started |
-| Config / env loading | Not started |
-| Entry point (`main.py`) | Not started |
-| Tests | Not started |
+| :--- | :--- |
+| File structure & scaffolding | 🟢 Done |
+| `ReflexionState` (immutable dataclass) | 🟢 Done |
+| Control loop skeleton | 🟢 Done |
+| Evaluator agent | 🟡 Skeleton / Mocked |
+| Planner agent | 🔴 Not started |
+| Coder agent | 🔴 Not started |
+| Executor (sandboxed runner) | 🔴 Not started |
+| Reflector agent | 🔴 Not started |
+| Prompt templates | 🔴 Not started |
+| Config / env loading | 🔴 Not started |
+| Entry point (`main.py`) | 🔴 Not started |
+| Tests | 🔴 Not started |
 
-## Key Design Decisions
+---
 
-- **Immutable state** — `ReflexionState` is a frozen dataclass. Every iteration produces a new state via `dataclasses.replace()`, making the execution history fully traceable and side-effect-free.
-- **Prompt-driven agents** — Each agent (planner, coder, evaluator, reflector) is backed by a dedicated prompt template, keeping LLM instructions separated from code logic.
-- **Configurable retry budget** — The maximum number of reflexion iterations is controlled by `MAX_RETRIES`, preventing infinite loops and runaway API costs.
+## 🧠 Why Build It This Way? (Design Philosophy)
 
-## License
+- **Immutable State:** Our `ReflexionState` is frozen. Every iteration spawns a brand-new state via `dataclasses.replace()`. Why? It makes tracking history dead-simple and completely eliminates nasty side-effects.
+- **Prompt-Driven Agents:** Each phase of the loop (Planner, Coder, etc.) has its own hyper-focused prompt template. We keep instructions pure and separate from the Python logic.
+- **Ironclad Budgets:** By strictly enforcing `MAX_RETRIES`, we ensure the system learns efficiently without blowing through your API budget in an infinite loop.
 
-TBD
+---
+
+## 📜 License
+
+TBD - Check back soon!
