@@ -124,12 +124,12 @@ We're aggressively building this out. Here's where we stand:
 | File structure & scaffolding | 🟢 Done |
 | `ReflexionState` (immutable dataclass) | 🟢 Done |
 | Control loop skeleton | 🟢 Done |
-| Evaluator agent | 🟡 Skeleton / Mocked |
+| Evaluator agent | 🟢 Done |
 | Planner agent | 🔴 Not started |
 | Coder agent | 🔴 Not started |
-| Executor (sandboxed runner) | 🔴 Not started |
+| Executor (sandboxed runner) | 🟢 Done |
 | Reflector agent | 🔴 Not started |
-| Prompt templates | 🔴 Not started |
+| Prompt templates | 🟡 In Progress |
 | Config / env loading | 🔴 Not started |
 | Entry point (`main.py`) | 🔴 Not started |
 | Tests | 🔴 Not started |
