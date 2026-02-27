@@ -1,7 +1,8 @@
 from dataclasses import dataclass, replace
 from typing import List
 from state import ReflexionState
-from evaluator import evaluate
+from evaluator import evaluate, FailureType
+from executor import execute_code
 
 
 
@@ -27,24 +28,40 @@ def run_reflexion_loop(task:str):
     while state.status == 'running':
         print(f"Iteration: {state.retry_count}")
 
-        # simulate evaluator result
-        result = evaluate(state)
+        # 1️⃣ Execute
+        execution_result = execute_code(state.current_code)
 
-        new_retry = state.retry_count +1
+        state_after_execution = replace(
+            state,
+            execution_output=execution_result.stdout,
+            error_log=execution_result.error or ""
+        )
 
-        new_failure_history = state.failure_history + [result.failure_type]
+        # 2️⃣ Evaluate
+        evaluation_result = evaluate(state_after_execution)
 
-        # decide new status
+        # 3️⃣ If success, terminate
+        if evaluation_result.failure_type == FailureType.NO_ERROR:
+            state = replace(state_after_execution, status="success")
+            break
+
+        # 4️⃣ Reflect (later)
+        # For now skip reflection logic
+
+        # 5️⃣ Increment retry
+        new_retry = state.retry_count + 1
+
+        # 6️⃣ Check termination
         if new_retry >= MAX_RETRIES:
-            new_status = 'terminated'
+            new_status = "terminated"
         else:
-            new_status = 'running'
+            new_status = "running"
 
         state = replace(
-            state,
-            retry_count= new_retry,
-            failure_history = new_failure_history,
-            status = new_status
+            state_after_execution,
+            retry_count=new_retry,
+            failure_history=state.failure_history + [evaluation_result.failure_type],
+            status=new_status
         )
     return state
 
