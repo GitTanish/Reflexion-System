@@ -24,13 +24,19 @@ def initialize_state(task:str) -> ReflexionState:
 SUCCESS_THRESHOLD = 0.9
 MAX_RETRIES = 3
 
+from coder import generate_code
+from reflector import reflect
+
 def run_reflexion_loop(task: str):
     state = initialize_state(task)
 
     while state.status == 'running':
         print(f"Iteration: {state.retry_count}")
 
-        # 1️⃣ Execute
+        # 1️⃣ Code Generation
+        state = generate_code(state)
+
+        # 2️⃣ Execute
         execution_result = execute_code(state.current_code)
 
         state_after_execution = replace(
@@ -39,28 +45,34 @@ def run_reflexion_loop(task: str):
             error_log=execution_result.error or ""
         )
 
-        # 2️⃣ Evaluate
+        # 3️⃣ Evaluate
         evaluation_result = evaluate(state_after_execution)
 
-        # 3️⃣ Success check
+        # 4️⃣ Success check
         if evaluation_result.failure_type == FailureType.NO_ERROR and evaluation_result.confidence >= SUCCESS_THRESHOLD:
             state = replace(state_after_execution, status="success")
             break
 
-        # 4️⃣ Else: treat as failure
-        new_retry = state.retry_count + 1
+        # 5️⃣ Else: treat as failure -> Reflect
+        new_retry = state_after_execution.retry_count + 1
 
         if new_retry >= MAX_RETRIES:
             new_status = "terminated"
         else:
             new_status = "running"
 
-        state = replace(
+        state_with_failure = replace(
             state_after_execution,
             retry_count=new_retry,
-            failure_history=state.failure_history + [evaluation_result.failure_type],
+            failure_history=state_after_execution.failure_history + [evaluation_result.failure_type],
             status=new_status
         )
+
+        # Reflect (only if not terminated)
+        if new_status == "running":
+            state = reflect(state_with_failure)
+        else:
+            state = state_with_failure
 
     return state
 
