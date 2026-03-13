@@ -31,12 +31,18 @@ def run_reflexion_loop(task: str):
     state = initialize_state(task)
 
     while state.status == 'running':
-        print(f"Iteration: {state.retry_count}")
+        print(f"\n--- Iteration: {state.retry_count} ---")
+        
+        if state.current_strategy:
+            print(f"Current Strategy: {state.current_strategy}")
 
         # 1️⃣ Code Generation
+        print("Coder: Generating code...")
         state = generate_code(state)
+        # print(f"Code Preview:\n{state.current_code[:100]}...")
 
         # 2️⃣ Execute
+        print("Executor: Running code...")
         execution_result = execute_code(state.current_code)
 
         state_after_execution = replace(
@@ -44,12 +50,21 @@ def run_reflexion_loop(task: str):
             execution_output=execution_result.stdout,
             error_log=execution_result.error or ""
         )
+        
+        if execution_result.success:
+            print("Execution: SUCCESS")
+        else:
+            print("Execution: FAILED")
 
         # 3️⃣ Evaluate
+        print("Evaluator: Classifying result...")
         evaluation_result = evaluate(state_after_execution)
+        print(f"Evaluation: {evaluation_result.failure_type} (Confidence: {evaluation_result.confidence})")
+        print(f"Reasoning: {evaluation_result.reasoning}")
 
         # 4️⃣ Success check
         if evaluation_result.failure_type == FailureType.NO_ERROR and evaluation_result.confidence >= SUCCESS_THRESHOLD:
+            print("System: Task completed successfully.")
             state = replace(state_after_execution, status="success")
             break
 
@@ -57,6 +72,7 @@ def run_reflexion_loop(task: str):
         new_retry = state_after_execution.retry_count + 1
 
         if new_retry >= MAX_RETRIES:
+            print("System: Max retries reached. Terminating.")
             new_status = "terminated"
         else:
             new_status = "running"
@@ -68,8 +84,13 @@ def run_reflexion_loop(task: str):
             status=new_status
         )
 
+        # Detect repeating failures
+        if len(state_with_failure.failure_history) >= 2 and state_with_failure.failure_history[-1] == state_with_failure.failure_history[-2]:
+             print("System: Detected repeated failure type. Reflector will be notified.")
+
         # Reflect (only if not terminated)
         if new_status == "running":
+            print("Reflector: Analyzing failure and updating strategy...")
             state = reflect(state_with_failure)
         else:
             state = state_with_failure

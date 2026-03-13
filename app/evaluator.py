@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 from state import ReflexionState
 
 from langchain_groq import ChatGroq
-from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 
 
 # -------- Failure Type Enum --------
@@ -42,9 +42,11 @@ class LLMOutputModel(BaseModel):
     )
 
 
+import os
+
 # -------- Model Instantiation (Module Level) --------
 llm = ChatGroq(
-    model="llama3-70b-8192",
+    model=os.getenv("MODEL_NAME", "llama-3.3-70b-versatile"),
     temperature=0
 )
 
