@@ -1,11 +1,11 @@
 # 🧠 Reflexion System: The Autonomous Coding Agent That *Learns* From Its Mistakes
 
-> **🚀 Status: Under Active Development** 
-> We're currently scaffolding the core architecture and bringing this beast to life. It's not production-ready yet, but the foundation is rock solid!
+> **🚀 Status: Core Architecture Implemented**
+> The foundational modules are live! We've moved beyond scaffolding and now have a functional self-correcting loop.
 
 Ever wish your code could write itself, test itself, and—when it inevitably breaks—*fix* itself? Welcome to the **Reflexion System**.
 
-Inspired by the groundbreaking [Reflexion paper](https://arxiv.org/abs/2303.11366) (Shinn et al., 2023), this is an LLM-powered autonomous coding agent built on a simple but powerful premise: **Failures aren't terminal. They're learning signals.** 
+Inspired by the groundbreaking [Reflexion paper](https://arxiv.org/abs/2303.11366) (Shinn et al., 2023), this is an LLM-powered autonomous coding agent built on a simple but powerful premise: **Failures aren't terminal. They're learning signals.**
 
 Instead of just spitting out code and hoping for the best, this system uses a self-reflective feedback loop to iteratively plan, write, execute, evaluate, and improve its solutions until the task is completely crushed.
 
@@ -16,23 +16,21 @@ Instead of just spitting out code and hoping for the best, this system uses a se
 Think of it as an AI development squad packed into a single loop:
 
 ```text
-Task → Planner* → Coder* → Executor → Evaluator
-                              │         │
-                              │         ├── Pass ── Done
-                              │         │
-                              └─────────┴── Fail ── Reflector*
-                                                      │
-                                                      ▼
-                                               Retry (Coder)
+Task → Coder → Executor → Evaluator
+        ^          │         │
+        │          │         ├── Pass ── Done
+        │          │         │
+        └──────────┴─────────┴── Fail ── Reflector
+                                          │
+                                          ▼
+                                   New Plan (Retry)
 ```
-*\* Components currently in skeleton phase.*
 
-1. 🗺️ **Planner**: Breaks down your raw task into a crisp, actionable strategy.
-2. 💻 **Coder**: Turns that plan into pythonic reality.
-3. ⚡ **Executor**: Throws the code into a sandboxed arena to see if it survives.
-4. ⚖️ **Evaluator**: The strict judge. Did the code actually do what we wanted? Powered by **LangChain** and **Groq**.
-5. 🔍 **Reflector**: The system's secret weapon. If the code failed, the Reflector analyzes *why* and formulates a brilliant new strategy for the next attempt.
-6. 🔁 **Control Loop**: The orchestrator keeping the chaos organized, managing state, and ensuring we don't loop forever.
+1. 💻 **Coder**: Generates Python code based on the task and current strategy.
+2. ⚡ **Executor**: Throws the code into a local environment to capture output and errors.
+3. ⚖️ **Evaluator**: The strict judge. Analyzes execution results to classify failures (Syntax, Runtime, Logic, etc.). Powered by **Groq**.
+4. 🔍 **Reflector**: The system's secret weapon. If the code failed, the Reflector analyzes *why* and formulates a refined strategy and a new step-by-step plan for the next attempt.
+5. 🔁 **Control Loop**: The orchestrator keeping the chaos organized, managing state, and ensuring we don't loop forever.
 
 ---
 
@@ -43,22 +41,22 @@ A clean, modular structure designed for scale and understandability:
 ```text
 Reflexion System/
 ├── main.py                  # The ignition switch (Entry point)
-├── config.py                # Centralized command center (Draft)
+├── config.py                # Configuration management
 ├── requirements.txt         # Fuel (Dependencies)
-├── .env                     # Secrets (Shh!)
+├── .env                     # Secrets (Groq API Key)
 ├── app/
 │   ├── __init__.py
 │   ├── control_loop.py      # The heartbeat & iteration logic
-│   ├── planner.py           # Task interpretation (Skeleton)
-│   ├── coder.py             # Code generation (Skeleton)
-│   ├── evaluator.py         # Output evaluation (Groq/LangChain)
-│   ├── reflector.py         # Failure analysis (Skeleton)
 │   ├── state.py             # Shared immutable state definitions
+│   ├── coder.py             # Code generation logic
+│   ├── executor.py          # Sandboxed execution engine
+│   ├── evaluator.py         # Output evaluation (Groq/LangChain)
+│   ├── reflector.py         # Failure analysis & re-planning
+│   ├── planner.py           # Initial task interpretation (Skeleton)
 │   └── prompts/             # LLM orchestration layer
-│       ├── executor.py      # Sandboxed execution logic
-│       ├── planner_prompt.txt
 │       ├── coder_prompt.txt
 │       ├── evaluator_prompt.txt
+│       ├── planner_prompt.txt
 │       └── reflector_prompt.txt
 └── tests/
     └── test_tasks.py        # Proving it actually works (Skeleton)
@@ -70,7 +68,8 @@ Reflexion System/
 
 - **Core Logic:** Python 3.10+
 - **LLM Orchestration:** [LangChain](https://www.langchain.com/)
-- **Compute:** [Groq Cloud](https://groq.com/) (Llama 3 70B)
+- **Compute:** [Groq Cloud](https://groq.com/) (Llama 3.3 70B)
+- **Validation:** [Pydantic](https://docs.pydantic.dev/) for structured LLM outputs
 - **State Management:** Immutable Python Dataclasses
 
 ---
@@ -90,14 +89,19 @@ git clone https://github.com/GitTanish/Reflexion-System.git
 cd Reflexion-System
 
 # 2. Forge a virtual environment
-python -m venv .venv
+python -m venv venv
 
 # 3. Activate it
-.venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # macOS / Linux
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS / Linux
 
 # 4. Install the goods
-pip install langchain langchain-groq python-dotenv pydantic
+pip install -r requirements.txt
+
+# 5. Set up your secrets
+# Create a .env file and add:
+GROQ_API_KEY=your_key_here
+MODEL_NAME=llama-3.3-70b-versatile
 ```
 
 ---
@@ -110,13 +114,12 @@ pip install langchain langchain-groq python-dotenv pydantic
 | `ReflexionState` (immutable dataclass) | 🟢 Done |
 | Control loop | 🟢 Done (Core logic implemented) |
 | Evaluator agent | 🟢 Done (Groq/LangChain integration) |
-| Planner agent | 🔴 Skeleton only |
-| Coder agent | 🔴 Skeleton only |
+| Coder agent | 🟢 Done (Full generation logic) |
 | Executor (sandboxed runner) | 🟢 Done |
-| Reflector agent | 🔴 Skeleton only |
-| Prompt templates | 🟡 Skeletons created |
-| Config / env loading | 🟡 Initialized in `main.py` |
-| Entry point (`main.py`) | 🟡 Initialized |
+| Reflector agent | 🟢 Done (Strategy refined & re-planning) |
+| Planner agent | 🔴 Skeleton only (Reflector currently handles re-planning) |
+| Prompt templates | 🟡 Integrated in-code (Text files are skeletons) |
+| Entry point (`main.py`) | 🟢 Done |
 | Tests | 🔴 Skeleton only |
 
 ---
@@ -124,7 +127,7 @@ pip install langchain langchain-groq python-dotenv pydantic
 ## 🧠 Design Philosophy
 
 - **Immutable State:** Our `ReflexionState` is frozen. Every iteration spawns a brand-new state via `dataclasses.replace()`. This ensures a clean history and prevents side effects.
-- **Agentic Modularization:** Each phase (Planner, Coder, Evaluator) is a decoupled module, making it easy to swap LLMs or logic specific to that role.
+- **Agentic Modularization:** Each phase (Coder, Evaluator, Reflector) is a decoupled module, making it easy to swap LLMs or logic specific to that role.
 - **Fail-Fast Loop:** The system is built to embrace failure as the primary driver for improvement.
 
 ---
